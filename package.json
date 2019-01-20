@@ -19,5 +19,10 @@
     "@babel/register": "^7.0.0",
     "nodemon": "^1.18.7",
     "csvjson": "5.1.0"
+  },
+  "dependencies": {
+    "npm": "^6.5.0",
+    "commander": "^2.15.1",
+    "through2": "^2.0.3"
   }
 }
