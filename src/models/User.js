@@ -1,10 +1,9 @@
-export default class Product {
+export default class User {
     constructor() {
-        this.modelName = 'Product Model';
+        this.modelName = 'User Model';
     }
 
     logModelName() {
         console.log(this.modelName);
     }
 }
-
