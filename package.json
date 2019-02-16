@@ -2,9 +2,9 @@
   "name": "nj-mp-2018-homework",
   "version": "1.0.0",
   "description": "",
-  "main": "app.js",
+  "main": "src/app.js",
   "scripts": {
-    "start": "nodemon --require @babel/register app.js",
+    "start": "nodemon --require @babel/register src/index.js",
     "test": ""
   },
   "repository": {
@@ -21,8 +21,10 @@
     "csvjson": "5.1.0"
   },
   "dependencies": {
-    "npm": "^6.5.0",
     "commander": "^2.15.1",
-    "through2": "^2.0.3"
+    "express": "^4.16.4",
+    "npm": "^6.5.0",
+    "through2": "^2.0.3",
+    "cookie": "latest"
   }
 }
