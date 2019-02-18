@@ -15,11 +15,11 @@ const user = {
 };
 
 passport.use(new facebookStrategy.Strategy({
-        clientID: "1234",
-        clientSecret: "sfacebook",
-        callbackURL: "http://localhost:8080"
+        clientID: "1762838263816191",
+        clientSecret: "224dec3c68bb1242b5cbfd6492fca6d9",
+        callbackURL: "http://localhost:8080/auth/facebook/callback",
     },
-    (accessToken, refreshToken, profile, done) => {
+    (token, tokenSecret, profile, done) => {
         done(null, {
             profile
         });
@@ -27,9 +27,9 @@ passport.use(new facebookStrategy.Strategy({
 ));
 
 passport.use(new GoogleStrategy({
-        consumerKey: "1234",
-        consumerSecret: "sfacebook",
-        callbackURL: "http://localhost:8080"
+        consumerKey: "415838880427-1oh3en4togls15c7j7jr7fqikbtqcrhe.apps.googleusercontent.com",
+        consumerSecret: "CASSG5Ko7-vkwZEvLXdjqVnQ",
+        callbackURL: `http://localhost:8080/auth/google/callback`
     },
     (token, tokenSecret, profile, done) => {
         done(null, {
@@ -39,33 +39,24 @@ passport.use(new GoogleStrategy({
 ));
 
 passport.use(new TwitterStrategy({
-        consumerKey: "1234",
-        consumerSecret: "sfacebook",
-        callbackURL: "http://localhost:8080/"
-    },
-    (token, tokenSecret, profile, done) => {
-        done(null, {
-            profile
-        });
-    }
-));
+    consumerKey: "ey06nuOpFXPP9RHIyhxzEGJtA",
+    consumerSecret: "gRqGPjLtS45nK4xWRukWYIfEhP0jgXndBcMSLSTf1XHZBh3FWs",
+    callbackURL: "http://localhost:8080/auth/twitter/callback"
+}, (token, tokenSecret, profile, done) => {
+    done(null, profile)
+}));
 
-passport.use(new Strategy(
-    (username, password, cb) => {
-        if (username !== user.name) {
-            return cb({
-                error: "No such user"
-            });
-        }
-        if (!user) {
-            return cb(null, false);
-        }
-        if (user.password !== password) {
-            return cb(null, false);
-        }
-        return cb(null, user);
+passport.use(new Strategy((username, password, done) => {
+    const foundUser = {
+        login: user.name,
+        password: user.password
+    };
+    if (foundUser) {
+        done(null, foundUser);
+    } else {
+        done(null, false, {message: "User doesn't exist"});
     }
-));
+}));
 
 passport.serializeUser(function (user, cb) {
     cb(null, user.id);

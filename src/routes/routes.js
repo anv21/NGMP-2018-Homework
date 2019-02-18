@@ -2,7 +2,7 @@ import {Router} from 'express';
 import users from "../../data/testDataHm5";
 import {getJwToken, errorResponse} from "../utils/utils";
 import passport from "../auth/auth-strategies";
-import checkToken from "../middlewares/token-check";
+import {tokenCheck} from "../middlewares/token-check";
 
 const routes = Router();
 
@@ -36,10 +36,10 @@ routes.get('/api/users', (req, res, next) => {
 routes.post("/auth", (req, res) => {
     const {name, password} = req.body;
     const user = users.find(user => user.name === name);
-    res.setHeader("Content-Type", "application/json");
+    res.contentType('application/json');
 
     if (user && user.password === password) {
-        const token = getJwToken();
+        const token = tokenCheck();
         res.status(200).send({
             code: 200,
             message: "OK",
@@ -56,21 +56,31 @@ routes.post("/auth", (req, res) => {
     }
 });
 
-routes.get("/auth/facebook", passport.authenticate("facebook", {
-    successRedirect: "/",
+routes.post('/login', passport.authenticate("local", {
+    failureRedirect: "/"
+}), (req, res) => {
+    res.json(req.user);
+});
+
+routes.get('/auth/facebook', passport.authenticate("facebook"));
+
+routes.get('/auth/facebook/callback', passport.authenticate("facebook", {
+    successRedirect: "/api/products",
     failureRedirect: "/login"
 }));
 
-routes.get("/auth/google", passport.authenticate("google", {
-    scope: "https://www.google.com/m8/feeds"
+routes.get('/auth/twitter', passport.authenticate("twitter"));
+
+routes.get('/auth/twitter/callback', passport.authenticate("twitter", {
+    successRedirect: "/api/products",
+    failureRedirect: "/login"
 }));
 
-routes.get("/auth/twitter", passport.authenticate("twitter"));
+routes.get('/auth/google', passport.authenticate("google", { scope: ['https://www.googleapis.com/auth/plus.login'] }));
 
-routes.post("/login", passport.authenticate("local", {
-    failureRedirect: "/auth"
-}), (req, res) => {
-    res.send(req.user);
-});
+routes.get('/auth/google/callback', passport.authenticate("google", {
+    successRedirect: "/api/products",
+    failureRedirect: "/login"
+}));
 
 export default routes;

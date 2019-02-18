@@ -23,6 +23,7 @@
   "dependencies": {
     "commander": "^2.15.1",
     "express": "^4.16.4",
+    "express-session": "^1.15.6",
     "npm": "^6.5.0",
     "through2": "^2.0.3",
     "cookie": "latest",

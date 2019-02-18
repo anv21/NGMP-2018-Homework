@@ -1,7 +1,7 @@
 import jwt from "jsonwebtoken";
 import KEY from "../constants/const";
 
-export default (req, res, next) => {
+export function tokenCheck (req, res, next) {
     let token = req.headers["x-access-token"];
 
     if (token) {
@@ -18,4 +18,4 @@ export default (req, res, next) => {
     } else {
         res.sendStatus(403);
     }
-};
+}
