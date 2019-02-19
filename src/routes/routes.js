@@ -1,8 +1,7 @@
 import {Router} from 'express';
-import users from "../../data/testDataHm5";
+import fakeUsers from "../../data/testDataHm5";
 import {getJwToken, errorResponse} from "../utils/utils";
 import passport from "../auth/auth-strategies";
-import {tokenCheck} from "../middlewares/token-check";
 
 const routes = Router();
 
@@ -33,26 +32,26 @@ routes.get('/api/users', (req, res, next) => {
     next();
 });
 
-routes.post("/auth", (req, res) => {
-    const {name, password} = req.body;
-    const user = users.find(user => user.name === name);
+routes.post('/auth', (req, res) => {
     res.contentType('application/json');
-
-    if (user && user.password === password) {
-        const token = tokenCheck();
+    const user = fakeUsers.find(user => user.password === req.body.password);
+    let response;
+    if (user) {
+        res.status(200);
+        const token = getJwToken(user.name);
         res.status(200).send({
-            code: 200,
+            code: "200",
             message: "OK",
             data: {
                 user: {
-                    email: user.email,
-                    username: name
-                },
-                token
-            }
+                    username: user.name,
+                    email: user.email
+                }
+            },
+            token
         });
     } else {
-        errorResponse(res);
+        errorResponse(res)
     }
 });
 
@@ -76,7 +75,7 @@ routes.get('/auth/twitter/callback', passport.authenticate("twitter", {
     failureRedirect: "/login"
 }));
 
-routes.get('/auth/google', passport.authenticate("google", { scope: ['https://www.googleapis.com/auth/plus.login'] }));
+routes.get('/auth/google', passport.authenticate("google", {scope: ['https://www.googleapis.com/auth/plus.login']}));
 
 routes.get('/auth/google/callback', passport.authenticate("google", {
     successRedirect: "/api/products",
