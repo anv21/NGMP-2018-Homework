@@ -5,7 +5,7 @@ import googleStrategy from "passport-google-oauth";
 import twitterStrategy from "passport-twitter";
 
 const Strategy = localStrategy.Strategy;
-const GoogleStrategy = googleStrategy.OAuthStrategy;
+const GoogleStrategy = googleStrategy.OAuth2Strategy;
 const TwitterStrategy = twitterStrategy.Strategy;
 
 const user = {
@@ -27,9 +27,9 @@ passport.use(new facebookStrategy.Strategy({
 ));
 
 passport.use(new GoogleStrategy({
-        consumerKey: "415838880427-1oh3en4togls15c7j7jr7fqikbtqcrhe.apps.googleusercontent.com",
-        consumerSecret: "CASSG5Ko7-vkwZEvLXdjqVnQ",
-        callbackURL: `http://localhost:8080/auth/google/callback`
+        clientID: "415838880427-1oh3en4togls15c7j7jr7fqikbtqcrhe",
+        clientSecret: "CASSG5Ko7-vkwZEvLXdjqVnQ",
+        callbackURL: "http://localhost:8080/auth/google/callback"
     },
     (token, tokenSecret, profile, done) => {
         done(null, {
