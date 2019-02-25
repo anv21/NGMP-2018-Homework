@@ -1,58 +1,89 @@
 import {Router} from 'express';
-import fakeUsers from "../../data/testDataHm5";
+import Sequelize from 'sequelize';
 import {getJwToken, errorResponse} from "../utils/utils";
 import passport from "../auth/auth-strategies";
+import {sequelize} from '../database/connect';
+import {User, Product, Review} from '../models';
+
 
 const routes = Router();
+const product = Product(sequelize, Sequelize);
+const user = User(sequelize, Sequelize);
+const review = Review(sequelize, Sequelize);
+
+review.belongsTo(user, {
+    foreignKey: 'userId',
+    targetKey: 'id'
+});
+
+review.belongsTo(product, {
+    foreignKey: 'productId',
+    targetKey: 'id'
+});
 
 routes.get('/', (req, res) => {
     res.send('OK: true')
 });
 
 routes.get('/api/products', (req, res) => {
-    res.send('All products')
+    product.findAll().then(products => {
+        res.send(products);
+    });
 });
 
 routes.get('/api/products/:id', (req, res, next) => {
-    res.send(`Product with id=${req.params.id}`);
-    next();
+    product.findByPk(req.params.id).then(neededProduct => {
+        res.send(neededProduct ? neededProduct : `Product by id: ${req.params.id} is not found`);
+    });
 });
 
 routes.get('/api/products/:id/reviews', (req, res, next) => {
-    res.send(`Reviews for product with id=${req.params.id}`);
-    next();
+    review.findAll({where: {productId: req.params.id}}).then(reviews => {
+        res.send(reviews ? reviews : `Reviews for product with id: ${req.params.id} is not found`);
+    });
+});
+
+routes.post('/api/products/:id/review', (req, res) => {
+    const oReview = {
+        comment: req.body.comment,
+        userId: req.body.userId,
+        productId: req.params.id
+    };
+    review.create(oReview).then(review => {
+        res.send(review);
+    });
 });
 
 routes.post('/api/products', (req, res) => {
-    res.send(JSON.stringify(req.query));
+    product.create(req.body).then(createdProduct => {
+        res.send(createdProduct);
+    });
 });
 
 routes.get('/api/users', (req, res, next) => {
-    res.send("All users");
-    next();
+    user.findAll().then(users => {
+        res.send(users);
+    });
 });
 
 routes.post('/auth', (req, res) => {
     res.contentType('application/json');
-    const user = fakeUsers.find(user => user.password === req.body.password);
-    let response;
-    if (user) {
-        res.status(200);
-        const token = getJwToken(user.name);
-        res.status(200).send({
-            code: "200",
-            message: "OK",
-            data: {
-                user: {
-                    username: user.name,
-                    email: user.email
-                }
-            },
-            token
-        });
-    } else {
-        errorResponse(res)
-    }
+    user.findOrCreate({where: {email: req.body.email, password: req.body.password}}).spread((user, created) => {
+        if (user) {
+            res.status(200);
+            const token = getJwToken(user.name);
+            res.status(200).send({
+                code: "200",
+                message: "OK",
+                data: {
+                    user
+                },
+                token
+            });
+        } else {
+            errorResponse(res)
+        }
+    });
 });
 
 routes.post('/login', passport.authenticate("local", {
