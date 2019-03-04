@@ -3,26 +3,21 @@ import localStrategy from "passport-local";
 import facebookStrategy from "passport-facebook";
 import googleStrategy from "passport-google-oauth";
 import twitterStrategy from "passport-twitter";
-import Sequelize from 'sequelize';
 import {User} from '../models';
-import {sequelize} from '../database/connect';
-
-const user = User(sequelize, Sequelize);
 
 const Strategy = localStrategy.Strategy;
 const GoogleStrategy = googleStrategy.OAuth2Strategy;
 const TwitterStrategy = twitterStrategy.Strategy;
 
-passport.use(new Strategy((username, password, done) => {
-    user.findOrCreate({where: {email: req.body.email, password: req.body.password}}).then((foundUser, created) => {
+passport.use(new Strategy.Strategy((email, password, done) => {
+    User.findOne({email: email, password: password}, (err, foundUser) => {
         if (foundUser) {
             done(null, foundUser);
         } else {
-            done(null, false, {message: "User with entered login and password doesn't exists"});
+            done(null, false, {message: "User doesn't exist"});
         }
     });
 }));
-
 
 passport.use(new facebookStrategy.Strategy({
         clientID: "1762838263816191",
@@ -55,25 +50,5 @@ passport.use(new TwitterStrategy({
 }, (token, tokenSecret, profile, done) => {
     done(null, profile)
 }));
-
-// passport.use(new Strategy((username, password, done) => {
-//     const foundUser = {
-//         login: user.name,
-//         password: user.password
-//     };
-//     if (foundUser) {
-//         done(null, foundUser);
-//     } else {
-//         done(null, false, {message: "User doesn't exist"});
-//     }
-// }));
-
-passport.serializeUser(function(user, done) {
-    done(null, user);
-});
-
-passport.deserializeUser(function(user, done) {
-    done(null, user);
-});
 
 export default passport;
