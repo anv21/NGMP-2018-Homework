@@ -10,8 +10,8 @@ routes.get('/', (req, res) => {
 });
 
 routes.get('/api/products', (req, res) => {
-    Product.find((err, res) => {
-        res.send(res);
+    Product.find((err, result) => {
+        res.send(result);
     });
 });
 
@@ -22,23 +22,23 @@ routes.get('/api/products/:id', (req, res, next) => {
 });
 
 routes.get('/api/users', (req, res, next) => {
-    User.find(((err, res) => {
-        res.send(res);
+    User.find(((err, result) => {
+        res.send(result);
     }));
 });
 
 routes.get('/api/city', (req, res) => {
     City.count().exec((err, count) => {
         const random = Math.floor(Math.random() * count);
-        City.findOne().skip(random).exec((err, res) => {
-            res.send(res);
+        City.findOne().skip(random).exec((err, result) => {
+            res.send(result);
         });
     });
 });
 
 routes.get('/api/cities', (req, res) => {
-    City.find((err, res) => {
-        res.send(res);
+    City.find((err, result) => {
+        res.send(result);
     });
 });
 
@@ -52,8 +52,8 @@ routes.post('/api/products', (req, res) => {
     const newProduct = new Product({
         name: req.body.name
     });
-    newProduct.save((err, res) => {
-        res.send(err ? err : res);
+    newProduct.save((err, result) => {
+        res.send(err ? err : result);
     });
 });
 
@@ -78,9 +78,9 @@ routes.post('/auth', (req, res) => {
 });
 
 routes.post('/api/cities', (req, res) => {
-    const newCity = new Product(req.body);
-    newCity.save((err, res) => {
-        res.send(res);
+    const newCity = new City(req.body);
+    newCity.save((err, result) => {
+        res.send(result);
     });
 });
 
@@ -103,8 +103,8 @@ routes.delete('/api/cities/:id', (req, res) => {
 });
 
 routes.put('/api/cities/:id', (req, res) => {
-    City.findByIdAndUpdate(req.params.id, req.body, {upsert: true}, (err, res) => {
-        res.send(err ? err : res);
+    City.findByIdAndUpdate(req.params.id, req.body, {upsert: true}, (err, result) => {
+        res.send(err ? err : result);
     });
 });
 
