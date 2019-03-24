@@ -1,14 +1,9 @@
-import Sequelize from 'sequelize';
+'use strict';
+import mongoose from 'mongoose';
 
-const sequelize = new Sequelize('postgres://postgres:postgres@localhost:5432/App');
+const db = mongoose.createConnection('mongodb://localhost/myAppDB');
 
-sequelize
-    .authenticate()
-    .then(() => {
-        console.log('Connection has been established successfully.');
-    })
-    .catch(err => {
-        console.error('Unable to connect to the database:', err);
-    });
+db.on('error', console.error);
+db.once('open', function() {});
 
-exports.sequelize = sequelize;
+module.exports = db;

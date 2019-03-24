@@ -1,74 +1,65 @@
 import {Router} from 'express';
-import Sequelize from 'sequelize';
 import {getJwToken, errorResponse} from "../utils/utils";
 import passport from "../auth/auth-strategies";
-import {sequelize} from '../database/connect';
-import {User, Product, Review} from '../models';
-
+import {User, Product, Review, City} from '../models';
 
 const routes = Router();
-const product = Product(sequelize, Sequelize);
-const user = User(sequelize, Sequelize);
-const review = Review(sequelize, Sequelize);
-
-review.belongsTo(user, {
-    foreignKey: 'userId',
-    targetKey: 'id'
-});
-
-review.belongsTo(product, {
-    foreignKey: 'productId',
-    targetKey: 'id'
-});
 
 routes.get('/', (req, res) => {
     res.send('OK: true')
 });
 
 routes.get('/api/products', (req, res) => {
-    product.findAll().then(products => {
-        res.send(products);
+    Product.find((err, result) => {
+        res.send(result);
     });
 });
 
 routes.get('/api/products/:id', (req, res, next) => {
-    product.findByPk(req.params.id).then(neededProduct => {
-        res.send(neededProduct ? neededProduct : `Product by id: ${req.params.id} is not found`);
-    });
-});
-
-routes.get('/api/products/:id/reviews', (req, res, next) => {
-    review.findAll({where: {productId: req.params.id}}).then(reviews => {
-        res.send(reviews ? reviews : `Reviews for product with id: ${req.params.id} is not found`);
-    });
-});
-
-routes.post('/api/products/:id/review', (req, res) => {
-    const oReview = {
-        comment: req.body.comment,
-        userId: req.body.userId,
-        productId: req.params.id
-    };
-    review.create(oReview).then(review => {
-        res.send(review);
-    });
-});
-
-routes.post('/api/products', (req, res) => {
-    product.create(req.body).then(createdProduct => {
-        res.send(createdProduct);
+    Product.findById(req.params.id, (err, product) => {
+        res.send(product ? product : `Product by id: ${req.params.id} is not found`);
     });
 });
 
 routes.get('/api/users', (req, res, next) => {
-    user.findAll().then(users => {
-        res.send(users);
+    User.find(((err, result) => {
+        res.send(result);
+    }));
+});
+
+routes.get('/api/city', (req, res) => {
+    City.count().exec((err, count) => {
+        const random = Math.floor(Math.random() * count);
+        City.findOne().skip(random).exec((err, result) => {
+            res.send(result);
+        });
+    });
+});
+
+routes.get('/api/cities', (req, res) => {
+    City.find((err, result) => {
+        res.send(result);
+    });
+});
+
+routes.post('/login', passport.authenticate("local", {
+    failureRedirect: "/"
+}), (req, res) => {
+    res.json(req.user);
+});
+
+routes.post('/api/products', (req, res) => {
+    const newProduct = new Product({
+        name: req.body.name
+    });
+    newProduct.save((err, result) => {
+        res.send(err ? err : result);
     });
 });
 
 routes.post('/auth', (req, res) => {
     res.contentType('application/json');
-    user.findOrCreate({where: {email: req.body.email, password: req.body.password}}).spread((user, created) => {
+    User.findOne({email: req.body.email, password: req.body.password}, (err, user) => {
         if (user) {
             res.status(200);
             const token = getJwToken(user.name);
@@ -86,10 +77,35 @@ routes.post('/auth', (req, res) => {
     });
 });
 
-routes.post('/login', passport.authenticate("local", {
-    failureRedirect: "/"
-}), (req, res) => {
-    res.json(req.user);
+routes.post('/api/cities', (req, res) => {
+    const newCity = new City(req.body);
+    newCity.save((err, result) => {
+        res.send(result);
+    });
+});
+
+routes.delete('/api/users/:id', (req, res) => {
+    User.deleteOne({ _id: req.params.id }, function (err) {
+        res.send(err ? err : "Success");
+    });
+});
+
+routes.delete('/api/products/:id', (req, res) => {
+    Product.deleteOne({ _id: req.params.id }, function (err) {
+        res.send(err ? err : "Success");
+    });
+});
+
+routes.delete('/api/cities/:id', (req, res) => {
+    City.deleteOne({ _id: req.params.id }, function (err) {
+        res.send(err ? err : "OK");
+    });
+});
+
+routes.put('/api/cities/:id', (req, res) => {
+    City.findByIdAndUpdate(req.params.id, req.body, {upsert: true}, (err, result) => {
+        res.send(err ? err : result);
+    });
 });
 
 routes.get('/auth/facebook', passport.authenticate("facebook"));

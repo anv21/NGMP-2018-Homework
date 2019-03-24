@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import KEY from "../constants/const";
+import {KEY} from "../constants/const";
 
 export function tokenCheck (req, res, next) {
     let token = req.headers["x-access-token"];
