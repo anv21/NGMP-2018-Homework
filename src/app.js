@@ -5,6 +5,7 @@ import routes from './routes/routes';
 import passport from "./auth/auth-strategies";
 import {parserCookie} from './middlewares/cookie-parser';
 import {queryParser} from './middlewares/query-parser';
+import {sequelize} from './database/connect';
 
 const app = express();
 
@@ -15,5 +16,9 @@ app.use(expressSession({secret: 'SECRET', resave: true, saveUninitialized: true}
 app.use(passport.initialize());
 app.use(passport.session());
 app.use('/', routes);
+
+sequelize.sync().then(() => {
+    app.use('/', routes);
+});
 
 export default app;

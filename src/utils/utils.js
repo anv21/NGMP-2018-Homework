@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import {KEY} from "../constants/const";
+import KEY from "../constants/const";
 
 const getJwToken = (name) => {
     return jwt.sign({
